@@ -49,7 +49,7 @@ export interface HumeCallSession {
 // Hume AI specific types
 export interface HumeToolCall {
   name: string;
-  arguments: Record<string, any>;
+  arguments: Record<string, unknown>;
 }
 
 export interface HumeMessage {
@@ -63,7 +63,7 @@ export interface HumeConversation {
   tools: {
     name: string;
     description: string;
-    parameters: Record<string, any>;
+    parameters: Record<string, unknown>;
   }[];
 }
 
@@ -95,7 +95,7 @@ export interface HumeToolErrorMessage {
 export interface ToolDefinition {
   name: string;
   description: string;
-  parameters: Record<string, any>;
+  parameters: Record<string, unknown>;
   endpoint: string;
   method: 'GET' | 'POST';
   agentType: 'restaurant' | 'insurance' | 'phone' | 'car_accessories';

@@ -13,9 +13,9 @@ export interface Agent {
   
   export const HUME_RESTAURANT_AGENT_ID =
     process.env.NEXT_PUBLIC_HUME_RESTAURANT_AGENT_ID || 'restaurant-concierge';
-  export const HUME_INSURANCE_AGENT_ID = process.env.NEXT_PUBLIC_HUME_INSURANCE_AGENT_ID || 'insurance-concierge';
-  export const HUME_PHONE_AGENT_ID = process.env.NEXT_PUBLIC_HUME_PHONE_AGENT_ID || 'phone-concierge';
-  export const HUME_CAR_ACCESSORIES_AGENT_ID = process.env.NEXT_PUBLIC_HUME_CAR_ACCESSORIES_AGENT_ID || 'car-accessories-concierge';
+  export const HUME_INSURANCE_AGENT_ID = process.env.NEXT_PUBLIC_HUME_INSURANCE_AGENT_ID || 'insurance-advisor';
+  export const HUME_PHONE_SERVICE_AGENT_ID = process.env.NEXT_PUBLIC_HUME_PHONE_SERVICE_AGENT_ID || 'phone-specialist';
+  export const HUME_CAR_ACCESSORIES_AGENT_ID = process.env.NEXT_PUBLIC_HUME_CAR_ACCESSORIES_AGENT_ID || 'automotive-specialist';
 
   export const Agent: Agent[] = [
     {
@@ -50,7 +50,7 @@ export interface Agent {
       supportCall: true,
       supportChat: false,
       category: 'phone',
-      humeAgentId: HUME_PHONE_AGENT_ID
+      humeAgentId: HUME_PHONE_SERVICE_AGENT_ID
     },
     {
       id: 'car-001',

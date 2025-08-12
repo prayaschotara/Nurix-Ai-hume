@@ -97,7 +97,7 @@ export default function InsurancePage() {
               </div>
               
               <div className="space-y-8">
-                {Agent.map((agent) => (
+                {Agent.filter(agent => agent.category === 'insurance').map((agent) => (
                   <HumeAgentCard key={agent.id} agent={agent} />
                 ))}
               </div>

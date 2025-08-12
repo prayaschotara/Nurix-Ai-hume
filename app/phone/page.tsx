@@ -97,7 +97,7 @@ export default function PhonePage() {
               </div>
               
               <div className="space-y-8">
-                {Agent.map((agent) => (
+                {Agent.filter(agent => agent.category === 'phone').map((agent) => (
                   <HumeAgentCard key={agent.id} agent={agent} />
                 ))}
               </div>
