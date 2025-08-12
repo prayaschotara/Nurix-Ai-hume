@@ -12,10 +12,10 @@ export interface Agent {
   }
   
   export const HUME_RESTAURANT_AGENT_ID =
-    process.env.NEXT_PUBLIC_HUME_RESTAURANT_AGENT_ID || 'restaurant-concierge';
-  export const HUME_INSURANCE_AGENT_ID = process.env.NEXT_PUBLIC_HUME_INSURANCE_AGENT_ID || 'insurance-advisor';
-  export const HUME_PHONE_SERVICE_AGENT_ID = process.env.NEXT_PUBLIC_HUME_PHONE_SERVICE_AGENT_ID || 'phone-specialist';
-  export const HUME_CAR_ACCESSORIES_AGENT_ID = process.env.NEXT_PUBLIC_HUME_CAR_ACCESSORIES_AGENT_ID || 'automotive-specialist';
+    process.env.NEXT_PUBLIC_HUME_RESTAURANT_AGENT_ID 
+  export const HUME_INSURANCE_AGENT_ID = process.env.NEXT_PUBLIC_HUME_INSURANCE_AGENT_ID 
+  export const HUME_PHONE_SERVICE_AGENT_ID = process.env.NEXT_PUBLIC_HUME_PHONE_SERVICE_AGENT_ID
+  export const HUME_CAR_ACCESSORIES_AGENT_ID = process.env.NEXT_PUBLIC_HUME_CAR_ACCESSORIES_AGENT_ID 
 
   export const Agent: Agent[] = [
     {

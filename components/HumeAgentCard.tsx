@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import Image from 'next/image';
 import { MicrophoneIcon, SparklesIcon } from '@heroicons/react/24/outline';
 import { Agent } from '../types/agent';
-import { HUME_RESTAURANT_AGENT_ID } from '../types/agent';
+
 import HumeVoiceChat from './HumeVoiceChat';
 
 interface HumeAgentCardProps {
@@ -300,7 +300,7 @@ export default function HumeAgentCard({ agent }: HumeAgentCardProps) {
                     onClose={handleModalClose}
                     agentName={agent.name}
                     agentAvatar={agent.avatar}
-                    agentId={agent.humeAgentId || HUME_RESTAURANT_AGENT_ID}
+                    agentId={agent.humeAgentId || ''}
                     agentType={agent.category}
                 />
             )}

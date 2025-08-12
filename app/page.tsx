@@ -33,7 +33,7 @@ const agents = [
     supportCall: true,
     icon: DevicePhoneMobileIcon,
     color: 'blue',
-    humeAgentId: process.env.NEXT_PUBLIC_HUME_PHONE_AGENT_ID || 'phone-specialist',
+    humeAgentId: process.env.NEXT_PUBLIC_HUME_PHONE_SERVICE_AGENT_ID || 'phone-specialist',
     details: {
       title: 'Phone Buy & Sell',
       subtitle: 'Smart solutions for mobile',
@@ -57,7 +57,7 @@ const agents = [
     supportCall: true,
     icon: TruckIcon,
     color: 'purple',
-    humeAgentId: process.env.NEXT_PUBLIC_HUME_CAR_AGENT_ID || 'automotive-specialist',
+    humeAgentId: process.env.NEXT_PUBLIC_HUME_CAR_ACCESSORIES_AGENT_ID,
     details: {
       title: 'Car Accessories',
       subtitle: 'Vehicle accessories',
