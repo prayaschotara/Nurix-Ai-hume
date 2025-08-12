@@ -301,6 +301,7 @@ export default function HumeAgentCard({ agent }: HumeAgentCardProps) {
                     agentName={agent.name}
                     agentAvatar={agent.avatar}
                     agentId={agent.humeAgentId || HUME_RESTAURANT_AGENT_ID}
+                    agentType={agent.category}
                 />
             )}
         </>

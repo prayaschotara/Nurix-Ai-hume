@@ -4,6 +4,8 @@ import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { MicrophoneIcon, XMarkIcon, PhoneIcon } from '@heroicons/react/24/outline';
 import { useVoice, VoiceReadyState } from '@humeai/voice-react';
+import { createToolHandler } from '../lib/tool-handler';
+import { HumeToolCallMessage, HumeToolResponseMessage, HumeToolErrorMessage } from '../types/hume';
 
 interface HumeVoiceChatProps {
     isOpen: boolean;
@@ -11,6 +13,7 @@ interface HumeVoiceChatProps {
     agentName: string;
     agentAvatar: string;
     agentId: string;
+    agentType?: string; // Add agent type for tool handling
 }
 
 export default function HumeVoiceChat({ 
@@ -18,12 +21,14 @@ export default function HumeVoiceChat({
     onClose, 
     agentName, 
     agentAvatar, 
-    agentId 
+    agentId,
+    agentType = 'restaurant' // Default to restaurant for now
 }: HumeVoiceChatProps) {
     const { connect, disconnect, readyState, messages } = useVoice();
     const [isConnecting, setIsConnecting] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [isSpeaking, setIsSpeaking] = useState(false);
+    const [toolHandler] = useState(() => createToolHandler(agentType));
 
     // Auto-connect when modal opens
     useEffect(() => {
@@ -47,7 +52,7 @@ export default function HumeVoiceChat({
         console.log('📡 Voice readyState changed:', readyState);
     }, [readyState]);
 
-    // Monitor messages for speaking state
+    // Monitor messages for speaking state and tool calls
     useEffect(() => {
         if (messages.length > 0) {
             const lastMessage = messages[messages.length - 1];
@@ -61,8 +66,46 @@ export default function HumeVoiceChat({
                 setIsSpeaking(false);
                 console.log('🔇 AI finished speaking');
             }
+            
+            // Handle tool calls
+            if (lastMessage.type === 'tool_call') {
+                console.log('🔧 Tool call detected:', lastMessage);
+                handleToolCall(lastMessage);
+            }
         }
     }, [messages]);
+
+    // Handle tool calls from Hume AI
+    const handleToolCall = async (toolCall: any) => {
+        try {
+            console.log('🔧 Processing tool call:', toolCall.name);
+            
+            // Convert SDK message to our custom type
+            const customToolCall: HumeToolCallMessage = {
+                type: 'tool_call',
+                name: toolCall.name,
+                parameters: toolCall.parameters || '{}',
+                tool_call_id: toolCall.tool_call_id || toolCall.id || 'unknown',
+                response_required: toolCall.response_required !== false,
+                tool_type: toolCall.tool_type || 'function'
+            };
+            
+            // Use the tool handler to execute the tool
+            const result = await toolHandler.handleToolCall(customToolCall);
+            
+            if (result.type === 'tool_response') {
+                console.log('✅ Tool executed successfully:', result.content);
+                // Note: The Hume SDK should handle sending the response back automatically
+                // If manual handling is needed, you would implement it here
+            } else if (result.type === 'tool_error') {
+                console.error('❌ Tool execution failed:', result.content);
+                // Note: The Hume SDK should handle sending the error back automatically
+            }
+            
+        } catch (error) {
+            console.error('❌ Tool call handling failed:', error);
+        }
+    };
 
     const handleConnect = async () => {
         try {
@@ -263,6 +306,7 @@ export default function HumeVoiceChat({
                                         <span className="ml-2 text-gray-700 dark:text-gray-300">
                                             {msg.type === 'assistant_message' || msg.type === 'user_message' 
                                                 ? (msg as any).message?.content || 'Audio message'
+                                                : msg.type === 'tool_call' ? `🔧 Tool call: ${(msg as any).name}` 
                                                 : 'System message'
                                             }
                                         </span>
