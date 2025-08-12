@@ -273,7 +273,7 @@ export default function HumeAgentCard({ agent }: HumeAgentCardProps) {
                         <div className="mt-4 p-3 bg-green-50 border border-green-200 rounded-lg">
                             <div className="flex items-center justify-center text-sm text-green-700">
                                 <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse mr-2"></div>
-                                <span>Voice conversation is active - Click "End Conversation" to close</span>
+                                <span>Voice conversation is active - Click &apos;End Conversation&apos; to close</span>
                             </div>
                         </div>
                     )}

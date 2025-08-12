@@ -1,4 +1,5 @@
-import { TOOL_REGISTRY, ToolDefinition, HumeToolCallMessage, HumeToolResponseMessage, HumeToolErrorMessage } from '../types/hume';
+import { TOOL_REGISTRY, ToolDefinition } from '../types/hume';
+import { HumeToolCallMessage, HumeToolResponseMessage, HumeToolErrorMessage } from '../types/hume';
 
 export class ToolHandler {
   private agentType: string;
@@ -7,20 +8,17 @@ export class ToolHandler {
     this.agentType = agentType;
   }
 
-  /**
-   * Handle a tool call from Hume AI
-   */
   async handleToolCall(toolCall: HumeToolCallMessage): Promise<HumeToolResponseMessage | HumeToolErrorMessage> {
     try {
       console.log('🔧 Tool call received:', toolCall.name);
       
-      // Get tool definition
+      // Find tool definition
       const toolDef = TOOL_REGISTRY[toolCall.name];
       if (!toolDef) {
         return this.createToolError(toolCall.tool_call_id, 'Tool not found', `Tool '${toolCall.name}' is not available`);
       }
 
-      // Check if tool is available for this agent type
+      // Check agent compatibility
       if (toolDef.agentType !== this.agentType) {
         return this.createToolError(toolCall.tool_call_id, 'Tool not available', `Tool '${toolCall.name}' is not available for ${this.agentType} agent`);
       }
@@ -28,6 +26,7 @@ export class ToolHandler {
       // Execute the tool
       const result = await this.executeTool(toolDef, toolCall);
       
+      // Return success response
       return {
         type: 'tool_response',
         tool_call_id: toolCall.tool_call_id,
@@ -44,13 +43,11 @@ export class ToolHandler {
     }
   }
 
-  /**
-   * Execute a specific tool
-   */
-  private async executeTool(toolDef: ToolDefinition, toolCall: HumeToolCallMessage): Promise<any> {
+  private async executeTool(toolDef: ToolDefinition, toolCall: HumeToolCallMessage): Promise<unknown> {
     const { endpoint, method } = toolDef;
     
-    let requestOptions: RequestInit = {
+    // Build request options
+    const requestOptions: RequestInit = {
       method,
       headers: {
         'Content-Type': 'application/json'
@@ -62,12 +59,14 @@ export class ToolHandler {
       try {
         const params = JSON.parse(toolCall.parameters);
         requestOptions.body = JSON.stringify(params);
-      } catch (e) {
+      } catch {
         throw new Error(`Invalid parameters format: ${toolCall.parameters}`);
       }
     }
 
     console.log(`🌐 Calling ${method} ${endpoint}`);
+    
+    // Make the actual API call
     const response = await fetch(endpoint, requestOptions);
     
     if (!response.ok) {
@@ -79,30 +78,23 @@ export class ToolHandler {
     return result;
   }
 
-  /**
-   * Create a tool error response
-   */
-  private createToolError(toolCallId: string, error: string, content: string): HumeToolErrorMessage {
+  private createToolError(toolCallId: string, errorType: string, errorMessage: string): HumeToolErrorMessage {
     return {
       type: 'tool_error',
       tool_call_id: toolCallId,
-      error,
-      content,
-      level: 'warn'
+      error: `${errorType}: ${errorMessage}`,
+      content: errorMessage
     };
   }
 
-  /**
-   * Get available tools for this agent type
-   */
-  getAvailableTools(): ToolDefinition[] {
-    return Object.values(TOOL_REGISTRY).filter(tool => tool.agentType === this.agentType);
+  getAvailableTools(): string[] {
+    return Object.keys(TOOL_REGISTRY).filter(toolName => {
+      const toolDef = TOOL_REGISTRY[toolName];
+      return toolDef.agentType === this.agentType;
+    });
   }
 }
 
-/**
- * Factory function to create tool handler for specific agent type
- */
 export function createToolHandler(agentType: string): ToolHandler {
   return new ToolHandler(agentType);
 }

@@ -1,7 +1,7 @@
 "use client";
 
 import React from 'react';
-import { insuranceAgents } from '../types/agent';
+import { Agent } from '../types/agent';
 import HumeAgentCard from './HumeAgentCard';
 import { ShieldCheckIcon } from '@heroicons/react/24/outline';
 
@@ -24,7 +24,7 @@ export default function InsuranceAgents() {
                 </div>
                 
                 <div className="mx-auto">
-                    {insuranceAgents.map((agent) => (
+                    {Agent.map((agent) => (
                         <HumeAgentCard key={agent.id} agent={agent} />
                     ))}
                 </div>

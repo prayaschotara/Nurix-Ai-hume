@@ -17,7 +17,7 @@ export interface Agent {
   export const HUME_PHONE_AGENT_ID = process.env.NEXT_PUBLIC_HUME_PHONE_AGENT_ID || 'phone-concierge';
   export const HUME_CAR_ACCESSORIES_AGENT_ID = process.env.NEXT_PUBLIC_HUME_CAR_ACCESSORIES_AGENT_ID || 'car-accessories-concierge';
 
-  export const restaurantAgents: Agent[] = [
+  export const Agent: Agent[] = [
     {
       id: 'rest-001',
       name: 'Sofia',

@@ -1,11 +1,11 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import Image from 'next/image';
 import { MicrophoneIcon, XMarkIcon, PhoneIcon } from '@heroicons/react/24/outline';
 import { useVoice, VoiceReadyState } from '@humeai/voice-react';
 import { createToolHandler } from '../lib/tool-handler';
-import { HumeToolCallMessage, HumeToolResponseMessage, HumeToolErrorMessage } from '../types/hume';
+import { HumeToolCallMessage } from '../types/hume';
 
 interface HumeVoiceChatProps {
     isOpen: boolean;
@@ -30,6 +30,78 @@ export default function HumeVoiceChat({
     const [isSpeaking, setIsSpeaking] = useState(false);
     const [toolHandler] = useState(() => createToolHandler(agentType));
 
+    // Handle tool calls from Hume AI
+    const handleToolCall = useCallback(async (toolCall: {
+        name: string;
+        parameters?: string;
+        tool_call_id?: string;
+        id?: string;
+        response_required?: boolean;
+        tool_type?: string;
+    }) => {
+        try {
+            console.log('🔧 Processing tool call:', toolCall.name);
+            
+            // Convert SDK message to our custom type
+            const customToolCall: HumeToolCallMessage = {
+                type: 'tool_call',
+                name: toolCall.name,
+                parameters: toolCall.parameters || '{}',
+                tool_call_id: toolCall.tool_call_id || toolCall.id || 'unknown',
+                response_required: toolCall.response_required !== false,
+                tool_type: (toolCall.tool_type as 'function' | 'builtin' | undefined) || 'function'
+            };
+            
+            // Use the tool handler to execute the tool
+            const result = await toolHandler.handleToolCall(customToolCall);
+            
+            if (result.type === 'tool_response') {
+                console.log('✅ Tool executed successfully:', result.content);
+                // Note: The Hume SDK should handle sending the response back automatically
+                // If manual handling is needed, you would implement it here
+            } else if (result.type === 'tool_error') {
+                console.error('❌ Tool execution failed:', result.content);
+                // Note: The Hume SDK should handle sending the error back automatically
+            }
+            
+        } catch (error) {
+            console.error('❌ Tool call handling failed:', error);
+        }
+    }, [toolHandler]);
+
+
+    
+    const handleConnect = useCallback(async () => {
+        try {
+            console.log('🔌 Attempting to connect...');
+            console.log('📋 Agent ID:', agentId);
+            console.log('🔑 API Key exists:', !!process.env.NEXT_PUBLIC_HUME_API_KEY);
+            console.log('🔑 API Key preview:', process.env.NEXT_PUBLIC_HUME_API_KEY?.substring(0, 10) + '...');
+            
+            setIsConnecting(true);
+            setError(null);
+            
+            // Connect using the agent ID
+            const result = await connect({
+                auth: { type: "apiKey", value: process.env.NEXT_PUBLIC_HUME_API_KEY || '' },
+                configId: agentId
+            });
+            
+            console.log('✅ Connect result:', result);
+        } catch (err) {
+            console.error('❌ Connection failed:', err);
+            console.error('❌ Error details:', {
+                name: err instanceof Error ? err.name : 'Unknown',
+                message: err instanceof Error ? err.message : 'Unknown error',
+                stack: err instanceof Error ? err.stack : 'No stack trace'
+            });
+            setError(err instanceof Error ? err.message : 'Failed to connect');
+        } finally {
+            setIsConnecting(false);
+        }
+    }, [connect, agentId]);
+
+
     // Auto-connect when modal opens
     useEffect(() => {
         console.log('🔄 Modal state changed:', { isOpen, readyState });
@@ -37,7 +109,7 @@ export default function HumeVoiceChat({
             console.log('🚀 Auto-connecting...');
             handleConnect();
         }
-    }, [isOpen]);
+    }, [isOpen, handleConnect, readyState]);
 
     // Auto-disconnect when modal closes
     useEffect(() => {
@@ -73,69 +145,7 @@ export default function HumeVoiceChat({
                 handleToolCall(lastMessage);
             }
         }
-    }, [messages]);
-
-    // Handle tool calls from Hume AI
-    const handleToolCall = async (toolCall: any) => {
-        try {
-            console.log('🔧 Processing tool call:', toolCall.name);
-            
-            // Convert SDK message to our custom type
-            const customToolCall: HumeToolCallMessage = {
-                type: 'tool_call',
-                name: toolCall.name,
-                parameters: toolCall.parameters || '{}',
-                tool_call_id: toolCall.tool_call_id || toolCall.id || 'unknown',
-                response_required: toolCall.response_required !== false,
-                tool_type: toolCall.tool_type || 'function'
-            };
-            
-            // Use the tool handler to execute the tool
-            const result = await toolHandler.handleToolCall(customToolCall);
-            
-            if (result.type === 'tool_response') {
-                console.log('✅ Tool executed successfully:', result.content);
-                // Note: The Hume SDK should handle sending the response back automatically
-                // If manual handling is needed, you would implement it here
-            } else if (result.type === 'tool_error') {
-                console.error('❌ Tool execution failed:', result.content);
-                // Note: The Hume SDK should handle sending the error back automatically
-            }
-            
-        } catch (error) {
-            console.error('❌ Tool call handling failed:', error);
-        }
-    };
-
-    const handleConnect = async () => {
-        try {
-            console.log('🔌 Attempting to connect...');
-            console.log('📋 Agent ID:', agentId);
-            console.log('🔑 API Key exists:', !!process.env.NEXT_PUBLIC_HUME_API_KEY);
-            console.log('🔑 API Key preview:', process.env.NEXT_PUBLIC_HUME_API_KEY?.substring(0, 10) + '...');
-            
-            setIsConnecting(true);
-            setError(null);
-            
-            // Connect using the agent ID
-            const result = await connect({
-                auth: { type: "apiKey", value: process.env.NEXT_PUBLIC_HUME_API_KEY || '' },
-                configId: agentId
-            });
-            
-            console.log('✅ Connect result:', result);
-        } catch (err) {
-            console.error('❌ Connection failed:', err);
-            console.error('❌ Error details:', {
-                name: err instanceof Error ? err.name : 'Unknown',
-                message: err instanceof Error ? err.message : 'Unknown error',
-                stack: err instanceof Error ? err.stack : 'No stack trace'
-            });
-            setError(err instanceof Error ? err.message : 'Failed to connect');
-        } finally {
-            setIsConnecting(false);
-        }
-    };
+    }, [messages, handleToolCall]);
 
     const handleDisconnect = () => {
         disconnect();
@@ -236,7 +246,7 @@ export default function HumeVoiceChat({
                                 Conversation Active
                             </h3>
                             <p className="text-gray-500 dark:text-gray-400 mb-6">
-                                You're now connected! Speak naturally to interact with {agentName}
+                                You&apos;re now connected! Speak naturally to interact with {agentName}
                             </p>
                             
                             {/* Speaking Indicator */}
@@ -305,8 +315,8 @@ export default function HumeVoiceChat({
                                         </span>
                                         <span className="ml-2 text-gray-700 dark:text-gray-300">
                                             {msg.type === 'assistant_message' || msg.type === 'user_message' 
-                                                ? (msg as any).message?.content || 'Audio message'
-                                                : msg.type === 'tool_call' ? `🔧 Tool call: ${(msg as any).name}` 
+                                                ? (msg as { message?: { content?: string } }).message?.content || 'Audio message'
+                                                : msg.type === 'tool_call' ? `🔧 Tool call: ${(msg as { name?: string }).name}` 
                                                 : 'System message'
                                             }
                                         </span>

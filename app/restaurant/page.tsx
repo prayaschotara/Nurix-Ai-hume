@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import Header from '../../components/Header';
-import { restaurantAgents } from '../../types/agent';
+import { Agent } from '../../types/agent';
 import HumeAgentCard from '../../components/HumeAgentCard';
 import { BuildingStorefrontIcon, ArrowLeftIcon, CheckCircleIcon, SparklesIcon } from '@heroicons/react/24/outline';
 
@@ -97,7 +97,7 @@ export default function RestaurantPage() {
               </div>
               
               <div className="space-y-8">
-                {restaurantAgents.map((agent) => (
+                {Agent.map((agent) => (
                   <HumeAgentCard key={agent.id} agent={agent} />
                 ))}
               </div>

@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import Header from '../../components/Header';
-import { insuranceAgents } from '../../types/agent';
+import { Agent } from '../../types/agent';
 import HumeAgentCard from '../../components/HumeAgentCard';
 import { ShieldCheckIcon, ArrowLeftIcon, CheckCircleIcon, SparklesIcon } from '@heroicons/react/24/outline';
 
@@ -97,7 +97,7 @@ export default function InsurancePage() {
               </div>
               
               <div className="space-y-8">
-                {insuranceAgents.map((agent) => (
+                {Agent.map((agent) => (
                   <HumeAgentCard key={agent.id} agent={agent} />
                 ))}
               </div>
